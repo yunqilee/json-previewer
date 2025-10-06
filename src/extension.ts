@@ -30,18 +30,22 @@ export function activate(context: vscode.ExtensionContext) {
     "json-previewer.generateJSON",
     async () => {
       const rowsStr = await vscode.window.showInputBox({
-        prompt: "请输入行数",
+        prompt: "Enter the number of rows",
         validateInput: (v) =>
-          /^\d+$/.test(v) && Number(v) > 0 ? null : "必须输入正整数",
+          /^\d+$/.test(v) && Number(v) > 0
+            ? null
+            : "Please enter a positive integer",
       });
       if (!rowsStr) {
         return;
       }
 
       const colsStr = await vscode.window.showInputBox({
-        prompt: "请输入列数",
+        prompt: "Enter the number of columns",
         validateInput: (v) =>
-          /^\d+$/.test(v) && Number(v) > 0 ? null : "必须输入正整数",
+          /^\d+$/.test(v) && Number(v) > 0
+            ? null
+            : "Please enter a positive integer",
       });
       if (!colsStr) {
         return;
@@ -69,7 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
     "json-previewer.generateCustomJSON",
     async () => {
       const fieldStr = await vscode.window.showInputBox({
-        prompt: "输入字段名（用英文逗号分隔），例如：id, name, age",
+        prompt: "Enter field names (comma separated), e.g., id, name, age",
         placeHolder: "id, name, age",
         validateInput: (v) => {
           const parts = v
@@ -77,10 +81,10 @@ export function activate(context: vscode.ExtensionContext) {
             .map((s) => s.trim())
             .filter(Boolean);
           if (!parts.length) {
-            return "至少提供一个字段名";
+            return "Please provide at least one field name";
           }
           if (parts.some((p) => /[\s]/.test(p))) {
-            return "字段名不要包含空白字符（请用逗号分隔）";
+            return "Field names should not contain whitespace (please separate with commas)";
           }
           return null;
         },
@@ -90,9 +94,11 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const rowsStr = await vscode.window.showInputBox({
-        prompt: "请输入行数",
+        prompt: "Enter the number of rows",
         validateInput: (v) =>
-          /^\d+$/.test(v) && Number(v) > 0 ? null : "必须输入正整数",
+          /^\d+$/.test(v) && Number(v) > 0
+            ? null
+            : "Please enter a positive integer",
       });
       if (!rowsStr) {
         return;
@@ -121,7 +127,9 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
-        vscode.window.showErrorMessage("没有活动的编辑器，无法读取 JSON。");
+        vscode.window.showErrorMessage(
+          "No active editor found. Unable to read JSON."
+        );
         return;
       }
 
@@ -136,7 +144,7 @@ export function activate(context: vscode.ExtensionContext) {
         data = JSON.parse(raw);
       } catch {
         vscode.window.showErrorMessage(
-          "当前内容不是合法的 JSON。请选中或打开一个有效的 JSON。"
+          "The current content is not valid JSON. Please select or open a valid JSON."
         );
         return;
       }
@@ -145,7 +153,6 @@ export function activate(context: vscode.ExtensionContext) {
         data = [data];
       }
 
-      // 计算表头（合并所有对象/数组的 key）
       const headersSet = new Set<string>();
       for (const row of data) {
         if (Array.isArray(row)) {

@@ -172,7 +172,12 @@ export function activate(context: vscode.ExtensionContext) {
         { enableScripts: true, retainContextWhenHidden: true }
       );
 
-      panel.webview.html = getWebviewHtml(panel.webview, headers, data);
+      panel.webview.html = getWebviewHtml(
+        panel.webview,
+        context.extensionUri,
+        headers,
+        data
+      );
     }
   );
 

@@ -178,6 +178,40 @@ export function activate(context: vscode.ExtensionContext) {
         headers,
         data
       );
+
+      panel.webview.onDidReceiveMessage(async (msg) => {
+        if (msg?.type !== "downloadCSV") {
+          return;
+        }
+        try {
+          const defaultName = (msg.filename as string) || "table.csv";
+          const defaultUri = vscode.workspace.workspaceFolders?.[0]
+            ? vscode.Uri.joinPath(
+                vscode.workspace.workspaceFolders[0].uri,
+                defaultName
+              )
+            : vscode.Uri.file(defaultName);
+
+          const uri = await vscode.window.showSaveDialog({
+            defaultUri,
+            filters: { CSV: ["csv"] },
+          });
+          if (!uri) {
+            return;
+          }
+
+          const enc = new TextEncoder();
+          await vscode.workspace.fs.writeFile(
+            uri,
+            enc.encode(msg.content as string)
+          );
+          vscode.window.showInformationMessage(`CSV saved: ${uri.fsPath}`);
+        } catch (err: any) {
+          vscode.window.showErrorMessage(
+            `Failed to save CSV: ${err?.message || String(err)}`
+          );
+        }
+      });
     }
   );
 

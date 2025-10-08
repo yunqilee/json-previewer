@@ -14,7 +14,15 @@
   Create JSON tables with user-defined field names (comma-separated).
 
 - **Preview JSON as Table**  
-  Open any JSON file (or selection) and preview the data in a simple table view.
+  Open any JSON file (or selection) and preview the data in a simple, scrollable table view.
+
+- **Search in Table**  
+  Filter rows in the previewed table by typing in the search bar.
+
+- **Export to CSV**  
+  Export the previewed data into CSV:
+  - Export **current view** (filtered rows).
+  - Export **all rows**.
 
 ## How to Use
 
@@ -33,14 +41,20 @@
 ## Extension Settings
 
 Currently, this extension does not contribute any settings.  
-Future updates may include customizable options (e.g., preview style, default row count).
+Future updates may include customizable options (e.g., preview style, default row count, column width).
 
 ## Known Issues
 
 - Table preview does not support nested objects/arrays (they are displayed as JSON strings).
-- Sorting, filtering, and export functions are not implemented yet.
+- Sorting and advanced filtering are not yet implemented.
+- No pagination for very large datasets.
 
 ## Release Notes
+
+### 0.2.0
+
+- Implemented **search filter** for previewed tables.
+- Implemented **CSV export** (current view / all rows).
 
 ### 0.1.0
 

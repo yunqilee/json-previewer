@@ -61,13 +61,18 @@ export function getWebviewHtml(
   ).fsPath;
   let html = fs.readFileSync(htmlPath, "utf8");
 
+  const scriptUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "media", "preview.js")
+  );
+
   html = html
     .replace(/{{cspSource}}/g, webview.cspSource)
     .replace(/{{nonce}}/g, nonce)
     .replace(/{{rowCount}}/g, String(rows.length))
     .replace(/{{colCount}}/g, String(headers.length))
     .replace("{{thead}}", thead)
-    .replace("{{tbody}}", tbody);
+    .replace("{{tbody}}", tbody)
+    .replace("{{scriptUri}}", scriptUri.toString());
 
   return html;
 }

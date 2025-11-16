@@ -71,6 +71,27 @@
       button {
         padding: 6px 10px;
       }
+      th.sortable {
+        cursor: pointer;
+      }
+      th .sort-arrow {
+        margin-left: 4px;
+        font-size: 11px;
+        opacity: 0.7;
+      }
+      th.resizable {
+        position: relative;
+      }
+      th .resize-handle {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 4px;
+        height: 100%;
+        cursor: col-resize;
+        user-select: none;
+        transform: translateX(50%);
+      }
     </style>
   </head>
   <body>
@@ -96,96 +117,6 @@
       </table>
     </div>
 
-    <script nonce="{{nonce}}">
-      const vscode = acquireVsCodeApi();
-
-      const thead = document.getElementById("thead");
-      const tbody = document.getElementById("tbody");
-      const meta = document.getElementById("meta");
-      const input = document.getElementById("search");
-      const btnExport = document.getElementById("exportCsv");
-      const btnExportAll = document.getElementById("exportAll");
-
-      if (!thead || !tbody) {
-        console.error("thead/tbody not found");
-      }
-
-      const allRows = Array.from(tbody.querySelectorAll("tr"));
-      const total = allRows.length;
-
-      function applyFilter() {
-        const q = input.value.trim().toLowerCase();
-        let visible = 0;
-
-        if (!q) {
-          for (const tr of allRows) {
-            tr.style.display = "";
-          }
-          visible = total;
-        } else {
-          for (const tr of allRows) {
-            const text = tr.textContent?.toLowerCase() ?? "";
-            const show = text.includes(q);
-            tr.style.display = show ? "" : "none";
-            if (show) visible++;
-          }
-        }
-        meta.textContent = `${visible} / ${total} rows · {{colCount}} columns`;
-      }
-
-      // CSV helpers
-      function csvEscape(value) {
-        const s = value == null ? "" : String(value);
-        return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
-      }
-      function collectHeaders() {
-        return Array.from(thead.querySelectorAll("th")).map(
-          (th) => th.textContent ?? ""
-        );
-      }
-      function collectRowCells(tr) {
-        return Array.from(tr.querySelectorAll("td")).map(
-          (td) => td.textContent ?? ""
-        );
-      }
-      function collectVisibleRows() {
-        return allRows.filter((tr) => tr.style.display !== "none");
-      }
-      function buildCsv(rowsToExport) {
-        const headers = collectHeaders();
-        const lines = [];
-        lines.push(headers.map(csvEscape).join(","));
-        for (const tr of rowsToExport) {
-          lines.push(collectRowCells(tr).map(csvEscape).join(","));
-        }
-        // Add BOM for Excel compatibility
-        return "\uFEFF" + lines.join("\n");
-      }
-
-      function requestSaveCsv(content, filename) {
-        vscode.postMessage({ type: "downloadCSV", filename, content });
-      }
-
-      btnExport.addEventListener("click", () => {
-        const rowsToExport = collectVisibleRows();
-        const csv = buildCsv(rowsToExport);
-        const ts = new Date().toISOString().replace(/[:.]/g, "-");
-        requestSaveCsv(csv, `table-${ts}.csv`);
-      });
-
-      btnExportAll.addEventListener("click", () => {
-        const csv = buildCsv(allRows);
-        const ts = new Date().toISOString().replace(/[:.]/g, "-");
-        requestSaveCsv(csv, `table-all-${ts}.csv`);
-      });
-
-      let timer;
-      input.addEventListener("input", () => {
-        clearTimeout(timer);
-        timer = setTimeout(applyFilter, 120);
-      });
-
-      applyFilter();
-    </script>
+    <script nonce="{{nonce}}" src="{{scriptUri}}"></script>
   </body>
 </html>

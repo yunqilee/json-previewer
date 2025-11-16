@@ -21,8 +21,22 @@
 
 - **Export to CSV**  
   Export the previewed data into CSV:
+
   - Export **current view** (filtered rows).
   - Export **all rows**.
+
+- **Sortable Columns**  
+  Click any column header to toggle ascending/descending order.  
+  Automatically detects numeric vs. text sorting.
+
+- **Resizable Columns**
+  Drag the right edge of a column header to adjust column width.
+
+- **Pagination for Large Tables**
+  Improves performance when previewing large datasets:
+  - Navigate with **Previous / Next** page controls.
+  - Displays row range and total count.
+  - Future versions will support adjustable page size.
 
 ## How to Use
 
@@ -50,6 +64,13 @@ Future updates may include customizable options (e.g., preview style, default ro
 - No pagination for very large datasets.
 
 ## Release Notes
+
+### 0.3.0
+
+- Added sortable column headers (click to sort).
+- Added draggable column width.
+- Added pagination for faster rendering of large datasets.
+- Improved preview UI layout and performance.
 
 ### 0.2.0
 

@@ -6,38 +6,69 @@ const meta = document.getElementById("meta");
 const input = document.getElementById("search");
 const btnExport = document.getElementById("exportCsv");
 const btnExportAll = document.getElementById("exportAll");
+const btnPrev = document.getElementById("prevPage");
+const btnNext = document.getElementById("nextPage");
+const pageInfo = document.getElementById("pageInfo");
 
 if (!thead || !tbody) {
   console.error("thead/tbody not found");
 }
 
 const allRows = Array.from(tbody.querySelectorAll("tr"));
-const total = allRows.length;
+const headerCells = Array.from(thead.querySelectorAll("th"));
+
+let filteredRows = [...allRows];
+let pageSize = 10;
+let currentPage = 1;
+let isResizing = false;
+const sortState = { index: -1, asc: true };
+
+function renderPage(page) {
+  const total = filteredRows.length || 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  currentPage = Math.min(Math.max(1, page), totalPages);
+
+  const startIdx = (currentPage - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, total);
+
+  allRows.forEach((tr) => {
+    tr.style.display = "none";
+  });
+
+  for (let i = startIdx; i < endIdx; i++) {
+    const tr = filteredRows[i];
+    if (tr) {
+      tr.style.display = "";
+    }
+  }
+
+  const colCount = headerCells.length;
+  pageInfo.textContent = `${
+    total === 0 ? 0 : startIdx + 1
+  }-${endIdx} of ${total}`;
+  meta.textContent = `${
+    endIdx - startIdx
+  } / ${total} rows · ${colCount} columns`;
+
+  btnPrev.disabled = currentPage <= 1;
+  btnNext.disabled = currentPage >= totalPages;
+}
 
 function applyFilter() {
   const q = input.value.trim().toLowerCase();
   let visible = 0;
 
   if (!q) {
-    for (const tr of allRows) {
-      tr.style.display = "";
-    }
-    visible = total;
+    filteredRows = [...allRows];
   } else {
-    for (const tr of allRows) {
+    filteredRows = allRows.filter((tr) => {
       const text = tr.textContent?.toLowerCase() ?? "";
-      const show = text.includes(q);
-      tr.style.display = show ? "" : "none";
-      if (show) visible++;
-    }
+      return text.includes(q);
+    });
   }
-  meta.textContent = `${visible} / ${total} rows · {{colCount}} columns`;
+  renderPage(1);
 }
-
-let isResizing = false;
-
-const headerCells = Array.from(thead.querySelectorAll("th"));
-const sortState = { index: -1, asc: true };
 
 headerCells.forEach((th, index) => {
   th.classList.add("sortable", "resizable");
@@ -65,7 +96,6 @@ headerCells.forEach((th, index) => {
     }
     applySort();
     updateSortArrows();
-    applyFilter();
   });
 
   makeResizable(th, index);
@@ -74,7 +104,9 @@ headerCells.forEach((th, index) => {
 function updateSortArrows() {
   headerCells.forEach((th, index) => {
     const arrow = th.querySelector(".sort-arrow");
-    if (!arrow) return;
+    if (!arrow) {
+      return;
+    }
     if (index !== sortState.index) {
       arrow.textContent = "";
     } else {
@@ -84,7 +116,9 @@ function updateSortArrows() {
 }
 
 function applySort() {
-  if (sortState.index === -1) return;
+  if (sortState.index === -1) {
+    return;
+  }
   const idx = sortState.index;
 
   const rowsSorted = [...allRows];
@@ -111,6 +145,16 @@ function applySort() {
 
   allRows.length = 0;
   allRows.push(...rowsSorted);
+  const q = input.value.trim().toLowerCase();
+  if (!q) {
+    filteredRows = [...allRows];
+  } else {
+    filteredRows = allRows.filter((tr) => {
+      const text = tr.textContent?.toLowerCase() ?? "";
+      return text.includes(q);
+    });
+  }
+  renderPage(currentPage);
 }
 
 function makeResizable(th, index) {
@@ -149,7 +193,7 @@ function makeResizable(th, index) {
 
 // CSV helpers
 function csvEscape(value) {
-  const s = value == null ? "" : String(value);
+  const s = value === null ? "" : String(value);
   return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
 }
 function collectHeaders() {
@@ -192,6 +236,13 @@ btnExportAll.addEventListener("click", () => {
   const csv = buildCsv(allRows);
   const ts = new Date().toISOString().replace(/[:.]/g, "-");
   requestSaveCsv(csv, `table-all-${ts}.csv`);
+});
+
+btnPrev.addEventListener("click", () => {
+  renderPage(currentPage - 1);
+});
+btnNext.addEventListener("click", () => {
+  renderPage(currentPage + 1);
 });
 
 let timer;

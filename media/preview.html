@@ -92,6 +92,22 @@
         user-select: none;
         transform: translateX(50%);
       }
+      .pagination {
+        margin-top: 6px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+      .pagination button {
+        padding: 2px 6px;
+        font-size: 12px;
+      }
+      .pagination button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
     </style>
   </head>
   <body>
@@ -115,6 +131,12 @@
           {{tbody}}
         </tbody>
       </table>
+    </div>
+
+    <div class="pagination">
+      <button id="prevPage">‹ Prev</button>
+      <span id="pageInfo"></span>
+      <button id="nextPage">Next ›</button>
     </div>
 
     <script nonce="{{nonce}}" src="{{scriptUri}}"></script>
